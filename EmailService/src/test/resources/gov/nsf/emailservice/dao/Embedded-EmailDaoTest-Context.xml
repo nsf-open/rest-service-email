@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:flow="http://www.springframework.org/schema/webflow-config"
+       xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                           http://www.springframework.org/schema/webflow-config
+                           http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/oxm
+                           http://www.springframework.org/schema/oxm/spring-oxm.xsd
+                           http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/jdbc
+                           http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+                           http://www.springframework.org/schema/cache
+                           http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <context:annotation-config/>
+
+    <context:component-scan base-package="gov.nsf.emailservice.dao"/>
+
+
+    <!--CACHE CONFIG-->
+    <cache:annotation-driven cache-manager="cacheManager" proxy-target-class="true"/>
+
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="ehcache"/>
+    </bean>
+    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:config/ehcache.xml"/>
+        <property name="shared" value="true"/>
+    </bean>
+
+    <!--END CACHE CONFIG-->
+
+    <bean id="emailDao" class="gov.nsf.emailservice.dao.EmailDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <jdbc:embedded-database id="dataSource" type="H2" database-name="dbo;DATABASE_TO_UPPER=false">
+        <jdbc:script location="classpath:db/sql/create-db.sql" />
+        <jdbc:script location="classpath:db/sql/insert-data.sql" />
+    </jdbc:embedded-database>
+
+    <jdbc:initialize-database data-source="dataSource">
+        <jdbc:script location="classpath:db/sql/schema.sql"/>
+    </jdbc:initialize-database>
+
+    <!-- Email configuration -->
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${EmailSvc.mailsrvr.nsf.gov}" />
+        <property name="username" value="${EmailSvc.username}" />
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.user">${EmailSvc.mail.smtp.user}</prop>
+                <prop key="mail.transport.protocol">smtp</prop>
+                <prop key="mail.store.protocol">imap</prop>
+                <prop key="mail.debug">true</prop>
+            </props>
+        </property>
+    </bean>
+
+
+
+</beans>

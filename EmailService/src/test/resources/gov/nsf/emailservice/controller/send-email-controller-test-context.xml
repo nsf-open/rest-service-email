@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:flow="http://www.springframework.org/schema/webflow-config"
+       xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+                           http://www.springframework.org/schema/webflow-config
+                           http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/oxm
+                           http://www.springframework.org/schema/oxm/spring-oxm.xsd
+                           http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <context:annotation-config/>
+
+
+    <!-- Mock Email configuration -->
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="javaMailProperties">
+            <util:properties>
+                <prop key="mail.debug">false</prop>
+                <prop key="mail.transport.protocol">smtp</prop>
+                <prop key="mail.smtp.port">3025</prop> <!-- This is sent to our mock email server port -->
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.user">test@mail.extern</prop>
+                <prop key="mail.smtp.host">localhost</prop>
+                <prop key="mail.smtp.from">test@mail.extern</prop>
+            </util:properties>
+        </property>
+        <property name="username" value="test"/>
+        <property name="password" value="xxx"/>
+        <property name="defaultEncoding" value="utf8" />
+    </bean>
+
+
+
+
+    <bean id="nsfEmailUtil" class="gov.mynsf.common.email.util.impl.NsfEmailUtilImpl">
+        <!-- required : standard javaMailSender -->
+        <constructor-arg ref="javaMailSender"/>
+
+        <!-- required on init, if the debugRecipients or prodSupportRecipients aren't set it will default
+                 to this address -->
+        <constructor-arg name="defaultSender" value="defaultFrom@testemail.nsf.gov"/>
+
+
+        <!-- required: determines how email system will behave. -->
+        <property name="sendLevel" value="DebugLevel"/>
+
+        <!-- if SendLevel set to debug then messages will be sent here -->
+        <property name="debugRecipient" value="debugRecipients@testemail.nsf.gov"/>
+
+        <!-- optional - will bcc every email to this address -->
+        <!-- removing from this example because it's not a very common use case
+        <property name="defaultBccRecipients" value="defaultBccRecipients@testemail.nsf.gov"/>
+        -->
+
+        <!-- optional - used to help with debug messages -->
+        <property name="environment" value="PROD"/>
+
+        <!-- optional - if set, any exception will be sent to this address -->
+        <property name="prodSupportRecipient" value="prodSupport@testemail.nsf.gov"/>
+    </bean>
+</beans>

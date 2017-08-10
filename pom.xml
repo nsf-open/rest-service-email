@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	<!-- *********************************************************************** -->
+	<!--                 Project Properties                                      -->
+	<!-- *********************************************************************** -->
+
+	<!-- *********************************************************************** -->
+	<!--                 Project Identification                                  -->
+	<!-- *********************************************************************** -->
+	<groupId>gov.nsf.services.emailservice</groupId>
+	<artifactId>email</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>emailservice</name>
+	<description>email-service</description>
+
+	<!-- *********************************************************************** -->
+	<!--                 Project Parent                                          -->
+	<!-- *********************************************************************** -->
+	<parent>
+		<groupId>gov.nsf.mynsf</groupId>
+		<artifactId>mynsf-pom</artifactId>
+		<version>1.0.10-SNAPSHOT</version>
+	</parent>
+
+	<!-- *********************************************************************** -->
+	<!--                 Project Modules                                         -->
+	<!-- *********************************************************************** -->	
+	<modules>
+		<module>EmailService</module>
+		<module>EmailService-war</module>
+		<module>EmailService-API</module>
+		<module>EmailService-client</module>
+	</modules>
+	
+	<!-- *********************************************************************** -->
+	<!-- 		            Project Building                                     -->
+	<!-- *********************************************************************** -->
+	<prerequisites>
+		<maven>2.0</maven>
+	</prerequisites>
+		
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/*_NoCI.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>			
+		</plugins>
+	</build>
+	
+	<!-- *********************************************************************** -->
+	<!--                 Project Dependencies Management                         -->
+	<!-- *********************************************************************** -->	
+	<dependencyManagement>
+		<dependencies>
+	    	<!-- Internal Dependencies -->
+		
+			<!-- End Internal Dependencies -->
+		</dependencies>
+	</dependencyManagement>
+	
+</project>

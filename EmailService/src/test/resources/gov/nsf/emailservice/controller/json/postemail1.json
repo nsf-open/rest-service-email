@@ -1,0 +1,15 @@
+{
+  "from":"from@nsf.email.gov",
+  "subject":"Test email with recipient in all fields ",
+  "body":"This is the body of the email with some styles <br><strong>Bold text </strong> and <i> italics text</i><li>bullet 1 </li><li>bullet 2</li><li>bullet 3</li><br> and hyperlink <a href=\"http://www.google.com\">Click here</a><br><font color = \"red\"> Here is a red text</font><p>This is a paragraph test</p><p><font size = \"24\">Trying a  bigger font size</font></p>",
+  "encoding":"UTF-8",
+  "dateSent":"2016-12-19T18:25:43.511Z",
+  "to" : ["to1@nsf.email.gov","to2@nsf.email.gov"],
+  "cc" : ["cc@nsf.email.gov"],
+  "bcc" : ["bcc@nsf.email.gov"],
+  "sendMetaData":{
+    "debugRecipients":["debugRecipients1@email.nsf.gov","debugRecipients2@email.nsf.gov","debugRecipients3@email.nsf.gov"],
+    "prodSupportRecipients":["prodSupportRecipients@email.nsf.gov"],
+    "defaultBccRecipients":["defaultBccRecipients@email.nsf.gov"]
+  }
+}

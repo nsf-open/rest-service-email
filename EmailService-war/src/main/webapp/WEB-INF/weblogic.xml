@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wls:weblogic-web-app xmlns:wls="http://www.bea.com/ns/weblogic/weblogic-web-app">
+<!--	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.bea.com/ns/weblogic/weblogic-web-app http://www.oracle.com/technology/weblogic/10.3/weblogic-web-app/1.0/weblogic-web-app.xsd"-->
+	<wls:context-root>emailservice</wls:context-root>
+	<!-->wls:resource-description>
+		<wls:res-ref-name>nsf/mail/NSFMail</wls:res-ref-name>
+		<wls:jndi-name>nsf/mail/NSFMail</wls:jndi-name>
+	</wls:resource-description-->
+	<container-descriptor>
+		<prefer-web-inf-classes>true</prefer-web-inf-classes>
+	</container-descriptor>
+</wls:weblogic-web-app>

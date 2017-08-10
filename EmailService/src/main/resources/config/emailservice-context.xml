@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:flow="http://www.springframework.org/schema/webflow-config"
+       xmlns:oxm="http://www.springframework.org/schema/oxm"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                           http://www.springframework.org/schema/webflow-config
+                           http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/oxm
+                           http://www.springframework.org/schema/oxm/spring-oxm.xsd
+                           http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <context:annotation-config/>
+
+
+    <!-- Enables the Spring MVC @Controller programming model -->
+    <mvc:annotation-driven>
+
+        <mvc:message-converters>
+
+            <bean
+                    class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean
+                            class="com.fasterxml.jackson.databind.ObjectMapper"/>
+                </property>
+            </bean>
+
+        </mvc:message-converters>
+
+    </mvc:annotation-driven>
+
+    <!-- Handles HTTP GET requests for /resources/** by efficiently serving
+        up static resources in the ${webappRoot}/resources directory -->
+    <mvc:resources mapping="/**" location="/ember/"/>
+
+    <!-- Resolves views selected for rendering by @Controllers to .jsp resources
+        in the /WEB-INF/views directory -->
+    <bean
+            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <context:component-scan
+            base-package="gov.nsf.emailservice.controller, gov.nsf.common.controller"/>
+
+    <!-- Import Logging Util Context XML -->
+    <import resource="classpath*:logging-context.xml"/>
+
+    <!-- This bean resolves specific types of exceptions to corresponding logical
+        view names for error views. -->
+    <!-- TODO-vnayak Determine if used . Maybe be inherited from old applications -->
+    <bean
+            class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="org.springframework.web.servlet.PageNotFound">pageNotFound</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--CACHE CONFIG-->
+
+    <cache:annotation-driven cache-manager="cacheManager" proxy-target-class="true"/>
+
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="ehcache"/>
+    </bean>
+    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:config/ehcache.xml"/>
+        <property name="shared" value="true"/>
+    </bean>
+
+    <!--END CACHE CONFIG-->
+
+
+    <bean id="emailService" class="gov.nsf.emailservice.service.EmailServiceImpl">
+        <property name="emailDao" ref="emailDao"/>
+    </bean>
+
+    <bean id="emailDao" class="gov.nsf.emailservice.dao.EmailDaoImpl">
+    <property name="dataSource" ref="dataSource"/>
+</bean>
+
+    <bean id="emailServiceValidatorFactory" class="gov.nsf.emailservice.validator.EmailServiceValidatorFactory" >
+        <property name="createLetterValidator" ref="createLetterValidator"/>
+    </bean>
+
+    <bean id="createLetterValidator" class="gov.nsf.emailservice.validator.CreateLetterValidator" >
+        <property name="templateServiceClient" ref="templateServiceClient"/>
+        <property name="applicationInfoServiceClient" ref="applicationInfoServiceClient"/>
+    </bean>
+
+    <bean id="applicationInfoServiceClient"
+          class="gov.nsf.referencedataservice.client.ApplicationInfoServiceClientImpl">
+        <property name="referenceServiceURL" value="${RefDataSvcURL}" />
+        <property name="referenceServiceUserName" value="${RefDataSvc.MeetSvcUserName}" />
+        <property name="referenceServicePassword" value="${RefDataSvc.MeetSvcPwd}" />
+        <property name="authenticationRequired" value="true"></property>
+        <property name="requestTimeout" value="60000"></property>
+    </bean>
+    <bean id="templateServiceClient"
+          class="gov.nsf.templateservice.client.TemplateServiceClientImpl">
+        <property name="templateServiceURL" value="${TmplSvc.ServiceURL}" />
+        <property name="templateServiceServiceUserName" value="${TmplSvc.UserName}" />
+        <property name="templateServicePassword" value="${TmplSvc.Password}" />
+        <property name="authenticationRequired" value="true"></property>
+        <property name="requestTimeout" value="60000"></property>
+    </bean>
+	<!-- Email configuration -->
+    <!--configure auth read from db -->
+	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="javaMailProperties">
+			<util:properties>
+				<prop key="mail.debug">false</prop>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<!-- <prop key="mail.smtp.port">3025</prop>  --><!-- This is sent to our mock email server port -->
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.user">${EmailSvc.mail.smtp.user}</prop>
+				<prop key="mail.smtp.host">${EmailSvc.mailsrvr.nsf.gov}</prop>
+				<prop key="mail.smtp.from">test@nsf.gov</prop>
+			</util:properties>
+		</property>
+		<property name="username" value="${EmailSvc.username}"/>
+		<property name="password" value="xxx"/>
+		<property name="defaultEncoding" value="utf8" />
+	</bean>
+
+
+
+    <bean id="nsfEmailUtil" class="gov.mynsf.common.email.util.impl.NsfEmailUtilImpl">
+        <!-- required : standard javaMailSender -->
+        <constructor-arg ref="javaMailSender"/>
+
+        <!-- required on init, if the debugRecipient or prodSupportRecipient aren't set it will default
+                 to this address -->
+        <constructor-arg name="defaultSender" value="${EmailSvc.defaultSender}"/><!-- defaultFrom@testemail.nsf.gov-->
+
+        <property name="sendLevel" value="${EmailSvc.sendLevel}"/>
+
+        <!-- if SendLevel set to debug then messages will be sent here -->
+        <property name="debugRecipient" value="${EmailSvc.debugRecipient}"/>
+
+
+        <!-- optional - used to help with debug messages -->
+        <property name="environment" value="${EmailSvc.environment}"/>
+
+        <!-- optional - if set, any exception will be sent to this address -->
+        <property name="prodSupportRecipient" value="${EmailSvc.prodSupportRecipient}"/>
+    </bean>
+</beans>

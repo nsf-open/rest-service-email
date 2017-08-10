@@ -1,0 +1,37 @@
+{
+  "letter": {
+    "eltrID": null,
+    "eltrContent": "",
+    "eltrStatus": "Sent",
+    "eltrStatusUser": "test_user",
+    "eltrStatusDate": null,
+    "plainText": false,
+    "emailInfo": {
+      "mailSubject": "Test email with recipient in all fields",
+      "fromAddress": "from@nsf.email.gov",
+      "toAddresses": [
+        "to1@nsf.email.gov",
+        "to2@nsf.email.gov"
+      ],
+      "ccAddresses": [
+        "cc@nsf.email.gov"
+      ],
+      "bccAddresses": [
+        "bcc@nsf.email.gov"
+      ]
+    }
+  },
+  "sendMetaData": {
+    "debugRecipients": [
+      "debugRecipients1@email.nsf.gov",
+      "debugRecipients2@email.nsf.gov",
+      "debugRecipients3@email.nsf.gov"
+    ],
+    "prodSupportRecipients": [
+      "prodSupportRecipients@email.nsf.gov"
+    ],
+    "defaultBccRecipients": [
+      "defaultBccRecipients@email.nsf.gov"
+    ]
+  }
+}

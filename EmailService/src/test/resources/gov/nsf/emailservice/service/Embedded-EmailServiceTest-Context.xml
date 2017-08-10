@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:flow="http://www.springframework.org/schema/webflow-config"
+       xmlns:oxm="http://www.springframework.org/schema/oxm"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                           http://www.springframework.org/schema/webflow-config
+                           http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/oxm
+                           http://www.springframework.org/schema/oxm/spring-oxm.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/cache
+                           http://www.springframework.org/schema/cache/spring-cache.xsd
+                           http://www.springframework.org/schema/jdbc
+                           http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+    <context:annotation-config/>
+
+    <context:annotation-config/>
+
+    <context:component-scan base-package="gov.nsf.emailservice.service"/>
+
+
+
+    <!--CACHE CONFIG-->
+
+    <cache:annotation-driven cache-manager="cacheManager" proxy-target-class="true"/>
+
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="ehcache"/>
+    </bean>
+    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:config/ehcache.xml"/>
+        <property name="shared" value="true"/>
+    </bean>
+
+    <!--END CACHE CONFIG-->
+
+    <bean id="emailService" class="gov.nsf.emailservice.service.EmailServiceImpl">
+        <property name="emailDao" ref="emailDao"/>
+    </bean>
+
+    <bean id="emailDao" class="gov.nsf.emailservice.dao.EmailDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <jdbc:embedded-database id="dataSource" type="H2" database-name="dbo;DATABASE_TO_UPPER=false">
+        <jdbc:script location="classpath:db/sql/create-db.sql" />
+        <jdbc:script location="classpath:db/sql/insert-data.sql" />
+    </jdbc:embedded-database>
+
+    <jdbc:initialize-database data-source="dataSource">
+        <jdbc:script location="classpath:db/sql/schema.sql"/>
+    </jdbc:initialize-database>
+
+    <!-- Mock Email configuration -->
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="javaMailProperties">
+            <util:properties>
+                <prop key="mail.debug">false</prop>
+                <prop key="mail.transport.protocol">smtp</prop>
+                <prop key="mail.smtp.port">3025</prop> <!-- This is sent to our mock email server port -->
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.user">test@mail.extern</prop>
+                <prop key="mail.smtp.host">localhost</prop>
+                <prop key="mail.smtp.from">test@mail.extern</prop>
+            </util:properties>
+        </property>
+        <property name="username" value="test"/>
+        <property name="password" value="xxx"/>
+        <property name="defaultEncoding" value="utf8" />
+    </bean>
+
+
+
+
+    <bean id="nsfEmailUtil" class="gov.mynsf.common.email.util.impl.NsfEmailUtilImpl">
+        <!-- required : standard javaMailSender -->
+        <constructor-arg ref="javaMailSender"/>
+
+        <!-- required on init, if the debugRecipients or prodSupportRecipients aren't set it will default
+                 to this address -->
+        <constructor-arg name="defaultSender" value="defaultFrom@testemail.nsf.gov"/>
+
+
+        <!-- required: determines how email system will behave. -->
+        <property name="sendLevel" value="DebugLevel"/>
+
+        <!-- if SendLevel set to debug then messages will be sent here -->
+        <property name="debugRecipient" value="debugRecipients@testemail.nsf.gov"/>
+
+        <!-- optional - will bcc every email to this address -->
+        <!-- removing from this example because it's not a very common use case
+        <property name="defaultBccRecipients" value="defaultBccRecipients@testemail.nsf.gov"/>
+        -->
+
+        <!-- optional - used to help with debug messages -->
+        <property name="environment" value="PROD"/>
+
+        <!-- optional - if set, any exception will be sent to this address -->
+        <property name="prodSupportRecipient" value="prodSupport@testemail.nsf.gov"/>
+    </bean>
+
+
+
+</beans>
